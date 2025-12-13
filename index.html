@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Terminal</title>
+
+        <!-- xterm -->
+         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"/>
+
+         <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                background: #282a36;
+                font-family: monospace;
+            }
+            #terminal {
+                height: 100%;
+                padding: 12px;
+            }
+         </style>
+    </head>
+    <body>
+        <div id="terminal"></div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+        <script>
+            const term = new Terminal({
+                cursorBlink: true,
+                theme: {
+                    background: "#282a36",
+                    foreground: "#f8f8f2",
+                    cursor: "#f8f8f2",
+                    selection: "#44475a",
+                    black: "#21222c",
+                    red: "#ff5555",
+                    green: "#50fa7b",
+                    yellow: "#f1fa8c",
+                    blue: "#bd93f9",
+                    magenta: "#ff79c6",
+                    cyan: "#8be9fd",
+                    white: "#f8f8f2",
+                }
+            });
+            
+            const prompt = "c0nqu15t4d0r@Dark-Knight:~$ ";
+            let buffer = "";
+
+            term.open(document.getElementById("terminal"));
+            term.writeln("TermOS v1.0");
+            term.writeln("Type 'help' to begin.");
+            term.write(prompt);
+
+            term.onKey(e => {
+                const key = e.domEvent.key;
+
+                if (key === "Enter") {
+                    term.write("\r\n");
+                    handleCommand(buffer.trim());
+                    buffer = "";
+                    term.write(prompt);
+                }
+                else if (key === "Backspace") {
+                    if (buffer.length > 0) {
+                        buffer = buffer.slice(0, -1);
+                        term.write("\b \b");
+                    }
+                }
+                else if (key.length === 1) {
+                    buffer += key;
+                    term.write(key);
+                }
+            });
+
+            function handleCommand(cmd) {
+                if (cmd === "") return;
+
+                switch (cmd) {
+                    case "help":
+                        term.writeln("Available commands:");
+                        term.writeln("  help");
+                        term.writeln("  whoami");
+                        term.writeln("  clear");
+                        break;
+                    
+                    case "whoami":
+                        term.writeln("c0nqu15t4d0r@Dark-Knight");
+                        break;
+                    
+                    case "clear":
+                        term.clear();
+                        break;
+                
+                    default:
+                        term.writeln(`command not found: ${cmd}`);
+                        break;
+                }
+            }
+        </script>
+    </body>
+</html>
