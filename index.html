@@ -1,273 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <title>Terminal</title>
+<head>
+    <meta charset="UTF-8" />
+    <title>Terminal</title>
 
-        <!-- xterm -->
-         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"/>
+    <!-- xterm -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"
+    />
 
-         <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                background: #1e1f29;
-                overflow: hidden;
-            }
-            .xterm-viewport {
-                scrollbar-width: none;
-            }
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #1e1f29;
+            overflow: hidden;
+        }
 
-            .xterm-viewport::-webkit-scrollbar {
-                display: none;
-            }
+        .xterm-viewport {
+            scrollbar-width: none;
+        }
 
-            .xterm-cursor-layer {
-                filter: drop-shadow(0 0 6px #f8f8f2);
-            }
+        .xterm-viewport::-webkit-scrollbar {
+            display: none;
+        }
 
-            .xterm {
-                font-family: "Jetbrains Mono", monospace;
-                font-size: 15px;
-                line-height: 1.4;
-                text-shadow: 0 0 2px rgba(248, 248, 242, 0.15);
-            }
+        .xterm-cursor-layer {
+            filter: drop-shadow(0 0 6px #f8f8f2);
+        }
 
-            .terminal-wrapper {
-                width: 92%;
-                height: 90%;
-                margin: auto;
-                margin-top: 3vh;
-                background: #282a36;
-                border-radius: 12px;
-                box-shadow: 
-                0 0 0 1px rgba(189,147,249,0.2),
+        .xterm {
+            font-family: "Jetbrains Mono", monospace;
+            font-size: 15px;
+            line-height: 1.4;
+            text-shadow: 0 0 2px rgba(248, 248, 242, 0.15);
+        }
+
+        .terminal-wrapper {
+            width: 92%;
+            height: 90%;
+            margin: auto;
+            margin-top: 3vh;
+            background: #282a36;
+            border-radius: 12px;
+            box-shadow:
+                0 0 0 1px rgba(189, 147, 249, 0.2),
                 0 20px 60px rgba(0, 0, 0, 0.8);
-                overflow: hidden;
-            }
+            overflow: hidden;
+        }
 
-            .terminal-header {
-                height: 38px;
-                background: #21222c;
-                display: flex;
-                align-items: center;
-                padding: 0 12px;
-                gap: 8px;
-                font-family: system-ui;
-                font-size: 12px;
-                color: #bd93f9;
-            }
+        .terminal-header {
+            height: 38px;
+            background: #21222c;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            font-family: system-ui;
+            font-size: 12px;
+            color: #bd93f9;
+        }
 
-            .dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
 
-            .red{ background: #ff5555;}
-            .yellow {background: #f1fa8c;}
-            .green{background: #50fa7b;}
+        .red {
+            background: #ff5555;
+        }
 
-            .title{
-                margin-left: 12px;
-                opacity: 0.8;
-            }
+        .yellow {
+            background: #f1fa8c;
+        }
 
-            #terminal {
-                height: calc(100% - 38px);
-                padding: 12px;
-            }
+        .green {
+            background: #50fa7b;
+        }
 
-            .crt {
-                pointer-events: none;
-                position: fixed;
-                inset: 0;
-                background: 
-                linear-gradient(
-                    rgba(255,255,255,0.02)50%,
-                    rgba(0,0,0,0.02)50%
-                );
-                background-size: 100% 3px;
-                mix-blend-mode: overlay;
-                opacity: 0.15;
-            }
-         </style>
-    </head>
-    <body>
-        <div class="crt"></div>
-        <div class="terminal-wrapper">
-            <div class="terminal-header">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-                <span class="title">TermOS</span>
-            </div>
-            <div id="terminal" tabindex="0"></div>
+        .title {
+            margin-left: 12px;
+            opacity: 0.8;
+        }
+
+        #terminal {
+            height: calc(100% - 38px);
+            padding: 12px;
+        }
+
+        .crt {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(
+                rgba(255, 255, 255, 0.02) 50%,
+                rgba(0, 0, 0, 0.02) 50%
+            );
+            background-size: 100% 3px;
+            mix-blend-mode: overlay;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="crt"></div>
+
+    <div class="terminal-wrapper">
+        <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="title">TermOS</span>
         </div>
-        
-        <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
-        <script>
-            let booting = true;
-            const term = new Terminal({
-                cursorBlink: true,
-                theme: {
-                    background: "#282a36",
-                    foreground: "#f8f8f2",
-                    cursor: "#f8f8f2",
-                    selection: "#44475a",
-                    black: "#21222c",
-                    red: "#ff5555",
-                    green: "#50fa7b",
-                    yellow: "#f1fa8c",
-                    blue: "#bd93f9",
-                    magenta: "#ff79c6",
-                    cyan: "#8be9fd",
-                    white: "#f8f8f2",
+
+        <div id="terminal" tabindex="0"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+
+    <script>
+        let booting = true;
+
+        const term = new Terminal({
+            cursorBlink: true,
+            theme: {
+                background: "#282a36",
+                foreground: "#f8f8f2",
+                cursor: "#f8f8f2",
+                selection: "#44475a",
+                black: "#21222c",
+                red: "#ff5555",
+                green: "#50fa7b",
+                yellow: "#f1fa8c",
+                blue: "#bd93f9",
+                magenta: "#ff79c6",
+                cyan: "#8be9fd",
+                white: "#f8f8f2",
+            },
+        });
+
+        const prompt = "c0nqu15t4d0r@Dark-Knight:~$ ";
+        let buffer = "";
+        let history = [];
+        let historyIndex = -1;
+
+        const commands = ["help", "whoami", "clear"];
+
+        const bootSteps = [
+            { text: "Initializing kernel", weight: 20 },
+            { text: "Loading night modules", weight: 30 },
+            { text: "Mounting /mnt/root", weight: 25 },
+            { text: "Starting terminal services", weight: 25 },
+        ];
+
+        term.open(document.getElementById("terminal"));
+        term.focus();
+
+        term.attachCustomKeyEventHandler((e) => {
+            if (e.key === "Tab") {
+                e.preventDefault();
+                autocomplete();
+                return false;
+            }
+            return true;
+        });
+
+        function renderProgress(percent) {
+            const width = 30;
+            const filled = Math.round((percent / 100) * width);
+            const empty = width - filled;
+
+            return `Boot progress: [${"█".repeat(filled)}${"░".repeat(
+                empty
+            )}] ${percent}%`;
+        }
+
+        function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        async function bootSequence() {
+            term.writeln("TermOS v1.0");
+            term.writeln("Copyright (c) 2025 Fortis Tech Inc.");
+            term.writeln("");
+
+            let progress = 0;
+
+            term.writeln(renderProgress(progress));
+
+            for (const step of bootSteps) {
+                term.write("\x1b[1A");
+                term.write("\x1b[2K\r");
+                term.writeln(
+                    `[ \x1b[32mOK\x1b[0m ] ${step.text}`
+                );
+
+                const target = progress + step.weight;
+
+                while (progress < target) {
+                    progress++;
+                    term.write("\x1b[2K\r" + renderProgress(progress));
+                    await sleep(20);
                 }
-            });
-            
-            const prompt = "c0nqu15t4d0r@Dark-Knight:~$ ";
-            let buffer = "";
-            let history = [];
-            let historyIndex = -1;
 
-            const commands = ["help", "whoami", "clear"];
-
-            term.open(document.getElementById("terminal"));
-            const container = document.getElementById("terminal");
-
-            bootSequence();
-
-            term.attachCustomKeyEventHandler((e) => {
-                if (e.key === "Tab") {
-                    e.preventDefault();
-                    autocomplete();
-                    return false;
-                }
-                return true;
-            });
-
-            const bootLines = [
-                "TermOS v1.0",
-                "Copyright (c) 2025 Fortis Tech Inc.",
-                "",
-                "[ \x1b[32mOK\x1b[0m ] Initializing kernel",
-                "[ \x1b[32mOK\x1b[0m ] Loading night modules",
-                "[ \x1b[32mOK\x1b[0m ] Mounting /mnt/root",
-                "[ \x1b[32mOK\x1b[0m ] Starting terminal services",
-                "",
-                "\x1b[35mWelcome back, CONQU15T4D0R\x1b[0m",
-                ""
-            ];
-
-            function bootSequence() {
-                let i = 0;
-
-                const interval = setInterval(() => {
-                    if (i < bootLines.length) {
-                        term.writeln(bootLines[i]);
-                        i++;
-                    }else{
-                        clearInterval(interval);
-                        booting = false;
-                        term.write(prompt);
-                        term.focus();
-                    }
-                }, 400);
+                term.writeln("");
             }
 
-            term.onKey(e => {
-                const key = e.domEvent.key;
-                
-                //ENTER
-                if (key === "Enter") {
-                    term.write("\r\n");
-                    if (buffer.trim() !== "") {
-                        history.push(buffer);
-                    }
-                    historyIndex = history.length;
-                    handleCommand(buffer.trim());
-                    buffer = "";
-                    term.write(prompt);
+            term.writeln("");
+            term.writeln("\x1b[35mWelcome back, CONQU15T4D0R\x1b[0m");
+            term.writeln("");
+
+            booting = false;
+            term.write(prompt);
+            term.focus();
+        }
+
+        bootSequence();
+
+        term.onKey((e) => {
+            if (booting) return;
+
+            const key = e.domEvent.key;
+
+            if (key === "Enter") {
+                term.write("\r\n");
+
+                if (buffer.trim()) {
+                    history.push(buffer);
                 }
 
-                //BACKSPACE
-                else if (key === "Backspace") {
-                    if (buffer.length > 0) {
-                        buffer = buffer.slice(0, -1);
-                        term.write("\b \b");
-                    }
-                }
-
-                //ARROW UP
-                else if (key === "ArrowUp") {
-                    if (historyIndex > 0) {
-                        historyIndex--;
-                        replaceBuffer(history[historyIndex]);
-                    }
-                }
-
-                //ARROW DOWN
-                else if (key === "ArrowDown") {
-                    if (historyIndex < history.length - 1) {
-                        historyIndex++;
-                        replaceBuffer(history[historyIndex]);
-                    }else{
-                        historyIndex = history.length;
-                        replaceBuffer("");
-                    }
-                }
-
-                // PRintable Char
-                else if (key.length === 1) {
-                    buffer += key;
-                    term.write(key);
-                }
-            });
-
-            function replaceBuffer(text) {
-                while (buffer.length > 0) {
-                    term.write("\b \b");
+                historyIndex = history.length;
+                handleCommand(buffer.trim());
+                buffer = "";
+                term.write(prompt);
+            } else if (key === "Backspace") {
+                if (buffer.length) {
                     buffer = buffer.slice(0, -1);
+                    term.write("\b \b");
                 }
-                buffer = text;
-                term.write(text);
+            } else if (key === "ArrowUp") {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    replaceBuffer(history[historyIndex]);
+                }
+            } else if (key === "ArrowDown") {
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    replaceBuffer(history[historyIndex]);
+                } else {
+                    historyIndex = history.length;
+                    replaceBuffer("");
+                }
+            } else if (key.length === 1) {
+                buffer += key;
+                term.write(key);
+            }
+        });
+
+        function replaceBuffer(text) {
+            while (buffer.length) {
+                term.write("\b \b");
+                buffer = buffer.slice(0, -1);
             }
 
-            function autocomplete() {
-                const matches = commands.filter(cmd => cmd.startsWith(buffer));
-                if (matches.length === 1) {
-                    replaceBuffer(matches[0]);
-                } else if (matches.length > 1) {
-                    term.write("\r\n" + matches.join(" ")+ "\r\n");
-                    term.write(prompt + buffer)
-                }
-            }
+            buffer = text;
+            term.write(text);
+        }
 
-            function handleCommand(cmd) {
-                if (cmd === "") return;
+        function autocomplete() {
+            const matches = commands.filter((c) =>
+                c.startsWith(buffer)
+            );
 
-                switch (cmd) {
-                    case "help":
-                        term.writeln("Available commands:");
-                        term.writeln("  help");
-                        term.writeln("  whoami");
-                        term.writeln("  clear");
-                        break;
-                    
-                    case "whoami":
-                        term.writeln("c0nqu15t4d0r@Dark-Knight");
-                        break;
-                    
-                    case "clear":
-                        term.clear();
-                        break;
-                
-                    default:
-                        term.writeln(`command not found: ${cmd}`);
-                        break;
-                }
+            if (matches.length === 1) {
+                replaceBuffer(matches[0]);
+            } else if (matches.length > 1) {
+                term.write("\r\n" + matches.join("  ") + "\r\n");
+                term.write(prompt + buffer);
             }
-        </script>
-    </body>
+        }
+
+        function handleCommand(cmd) {
+            if (!cmd) return;
+
+            switch (cmd) {
+                case "help":
+                    term.writeln("Available commands:");
+                    term.writeln("  help");
+                    term.writeln("  whoami");
+                    term.writeln("  clear");
+                    break;
+
+                case "whoami":
+                    term.writeln("c0nqu15t4d0r@Dark-Knight");
+                    break;
+
+                case "clear":
+                    term.clear();
+                    break;
+
+                default:
+                    term.writeln(`command not found: ${cmd}`);
+            }
+        }
+    </script>
+</body>
 </html>
